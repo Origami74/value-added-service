@@ -1,5 +1,6 @@
 import { NRelay1, NPool, NSecSigner} from '@nostrify/nostrify';
 
+const cronSchedule = Deno.env.get("CRON_SCHEDULE")
 const privateKey = Deno.env.get("NOSTR_PRIVATE_KEY")
 const relays = Deno.env.get("NOSTR_RELAYS")?.split(",");
 
@@ -9,6 +10,10 @@ if(!privateKey){
 
 if(!relays){
     throw new Error("Required env var: NOSTR_RELAYS (comma seperated)");
+}
+
+if(!cronSchedule){
+    throw new Error("Required env var: CRON_SCHEDULE");
 }
 
 const nostrNow = (): number => Math.floor(Date.now() / 1000);
@@ -27,7 +32,8 @@ const pool = new NPool({
     },
 });
 
-await Deno.cron("Value-Added Service", {dayOfWeek: {every: 1}}, async () => {
+console.log(`Running scheduled job on ${cronSchedule}`);
+await Deno.cron("Value-Added Service", cronSchedule, async () => {
     await greet()
 });
 
